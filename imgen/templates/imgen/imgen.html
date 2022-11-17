@@ -1,0 +1,223 @@
+{% extends "imgen/base.html" %}
+{% load static %}
+{% block content %}
+
+<head>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+
+    <style>
+        /* settings tab */
+
+        #settings {
+            font-family: Arial, Helvetica, sans-serif;
+            border-collapse: collapse;
+            width: 100%;
+        }
+
+        #settings td, #settings th {
+            border: 1px solid #ddd;
+            padding: 8px;
+        }
+
+        #settings tr:nth-child(even){background-color: #f2f2f2;}
+
+        #settings tr:hover {background-color: #ddd;}
+
+        #settings th {
+            padding-top: 12px;
+            padding-bottom: 12px;
+            text-align: left;
+            background-color: #04AA6D;
+            color: white;
+        }
+
+        #form-footer{
+            margin-top: 40px;
+        }
+
+        #generate-button{
+            position: absolute;
+            left: 50%;
+            transform: translate(-50%,0%);
+        }
+
+        .top-bar-left{
+            float: right;
+            width: 50%;
+            /* border: 3px solid greenyellow; */
+        }
+
+        .top-bar-right{
+            float: right;
+            width: 50%;
+            /* border: 3px solid blue; */
+        }
+
+        .right-align-button{
+            float: right;
+            padding: 10px;
+        }
+
+    </style>
+
+    <style>
+        /* view images tab */
+        /* info bar */
+
+        .form-inline {  
+            display: flex;
+            flex-flow: row wrap;
+            align-items: center;
+        }
+
+        /* card area */
+        #image-card-holder{
+            position: relative;
+            border: 0px solid rgb(157, 157, 157);
+            width: 100%;
+            block-size: fit-content;
+            margin: 5px;
+            padding: 5px;
+            background-color: rgb(233, 233, 233);
+        }
+        
+        .image-card{
+            border: 3px solid black;
+            width: 120px;
+            height: 180px;
+            display: inline-block;
+            overflow: hidden;
+            padding: 4px;
+            background-color: white;
+        }
+
+        .image-card-image{
+            margin: 2px;
+        }
+
+        .image-card-text{
+            word-wrap: break-word;
+            width: 90%;
+            height: 90%;
+            text-align: center;
+            font-size: 14px;
+            margin: 5%;
+        }
+
+    </style>
+</head>
+
+<body>
+<div class="container" style="padding: 100px 0;">
+
+    <!-- Nav tabs -->
+    <ul class="nav nav-tabs">
+        <li class="nav-item">
+            <a class="nav-link active" data-toggle="tab" href="#info_tab">Info</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" data-toggle="tab" href="#objects_tab">Objects</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" data-toggle="tab" href="#settings_tab">Settings</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" data-toggle="tab" href="#images_tab">View Results</a>
+        </li>
+    </ul>
+
+    <!-- Tab panes -->
+    <div class="tab-content">
+        <div class="tab-pane container active" id="info_tab">
+            <div style="padding: 15px;"></div>
+            <p>Demo</p>
+            <p>1. Choose objects from your libray and open source examples</p>
+            <p>2. Set the number of images and image properties</p>
+            <p>3. Generate your images</p>
+            <p>4. View your results and download</p>
+            <p>To begin register an account and create a dataset</p>
+        </div>
+        
+        <!-- objects_tab -->
+        <div class="tab-pane container fade" id="objects_tab">
+            <div class="form-inline">
+                <div class="top-bar-left">
+                    <p style="margin-top: 22px;">selected objects</p>
+                </div>
+            </div>
+            <div id="image-card-holder">
+                {% for lib_obj in lib_objs %}
+                    <div class="image-card";>
+                        <img src ="{% static 'imgen/objs/' %}{{lib_obj.name}}.jpg" class="image-card-image">
+                        <p class="image-card-text">{{ lib_obj.name }}</p>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- settings_tab -->
+        <div class="tab-pane container fade" id="settings_tab">
+            <div style="padding: 15px;"></div>
+            <div id="settings-body">
+                <table id="settings">
+                    <tr>
+                        <td>Number of images</td>
+                        <td>50</td>
+                    </tr>
+                    <tr>
+                        <td>Image width</td>
+                        <td>100</td>
+                    </tr>
+                    <tr>
+                        <td>Image height</td>
+                        <td>100</td>
+                    </tr>
+                    <tr>
+                        <td>Image extension</td>
+                        <td>JPEG</td>
+                    </tr>
+                    <tr>
+                        <td>Color mode</td>
+                        <td>RGB</td>
+                    </tr>
+                    <tr>
+                        <td>Segmented label</td>
+                        <td>True</td>
+                    </tr>
+                    <tr>
+                        <td>JSON label</td>
+                        <td>False</td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+
+        <!-- images_tab -->
+        <div class="tab-pane container fade" id="images_tab">
+            <div class="form-inline">
+                <div class="top-bar-left">
+                    <p style="margin-top: 12px;">showing 50 scenes</p>
+                </div>
+                <div class="top-bar-right">
+                    <form action="download" class="right-align-button">
+                        <input type="submit" value="Download"/>
+                    </form>
+                </div>
+            </div>
+            <div id="image-card-holder">
+                {% for image_path, image_label_path in image_paths %}
+                    <div class="image-card";>
+                        <img src={{ image_path }} class="image-card-image">
+                        <p class="image-card-text">{{ image_label_path }}</p>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+
+{% endblock content %}

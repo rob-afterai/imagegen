@@ -1,0 +1,56 @@
+{% extends "imgen/base.html" %}
+{% load static %}
+{% block content %}
+
+<style>
+    .background_img{
+        background-image: url('/static/imgen/background_scene.jpg');
+    }
+
+    .div-style {
+        height: 80vh;
+        position: relative;
+        border: 0px solid blue;
+    }
+
+    .centre-buttom{
+        position: absolute;
+        left: 50%;
+        top: 50%;
+        -ms-transform: translate(-50%, -50%);
+        transform: translate(-50%, -50%);
+    }
+
+    #begin-form{
+        position: absolute;
+        text-align: center;
+        border: 0px solid green;
+        top: 70%;
+        left: 50%;
+        transform: translate(-50%,-50%);
+    }
+
+    .text1{
+        position: absolute;
+        text-align: center;
+        color: azure;
+        font-size: 40px;
+        top: 20%;
+        left: 50%;
+        transform: translate(-50%, 0%);
+    }
+    
+</style>
+
+<body class=background_img></body>
+
+<body>
+    <div class="div-style">
+        <p1 class="text1">Generate images on demand</p1>
+        <form action="imgen" id="begin-form">
+            <input type="submit" value="Begin"/>
+        </form>
+    </div>
+</body> 
+
+{% endblock content %}

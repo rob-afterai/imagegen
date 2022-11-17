@@ -1,0 +1,16 @@
+{% extends "imgen/base.html" %}
+{% load static %}
+{% block content %}
+{% load crispy_forms_tags %}
+
+<!-- <form method="post" action="/test/">
+    {% csrf_token %}
+    {{form.as_p}}
+    <button type="submit", name="save">Create New</button>
+</form> -->
+
+<form>
+    <input type="search">
+    <button type="submit">Search</button>
+</form>
+{% endblock %}

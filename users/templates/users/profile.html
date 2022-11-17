@@ -1,0 +1,122 @@
+{% extends "imgen/base.html" %}
+{% load crispy_forms_tags %}
+{% block content %}
+
+<head>
+    <style>
+        /* view images tab */
+        /* info bar */
+
+        .form-inline {  
+            margin-top: 10px;
+            margin-bottom: 10px;
+            /* display: flex; */
+            /* flex-flow: row wrap; */
+            /* align-items: center; */
+            background-color: #5f788a;
+        }
+
+        /* card area */
+
+        #dataset-card{
+            background-color: aliceblue;
+        }
+
+        #image-card-holder{
+            position: relative;
+            border: 3px solid black;
+            width: fit-content;
+            block-size: fit-content;
+            margin: 5px;
+            padding: 5px;
+            background-color: lightgray;
+            min-width: 100%;
+            min-height: 250px;
+        }
+        
+        .image-card{
+            border: 3px solid black;
+            width: 120px;
+            height: 180px;
+            display: inline-block;
+            overflow: hidden;
+            padding: 4px;
+            background-color: white;
+        }
+
+        .image-card-image{
+            margin: 2px;
+        }
+
+        .image-card-text{
+            word-wrap: break-word;
+            width: 90%;
+            height: 90%;
+            text-align: center;
+            font-size: 14px;
+            margin: 5%;
+        }
+
+        .bar-left{
+            /* float: right; */
+            width: 69%;
+            /* margin-top: 12px; */
+            /* border: 3px solid greenyellow; */
+            display: inline-block;
+        }
+
+        .bar-right{
+            /* float: right; */
+            width: 30%;
+            /* border: 3px solid blue; */
+            display: inline-block;
+        }
+
+        .right{
+            float: right;
+            padding: 10px;
+            /* border: 3px solid blue; */
+        }
+
+    </style>
+</head>
+
+<body>
+    <!-- top bar username and new dataset button -->
+    <div>
+        <div class="bar-left">
+            <h2>{{ user.username }}</h2>
+        </div>
+        <div class="bar-right">
+            <form action="/dataset/create/" method='post'>
+                {% csrf_token %}
+                <input type="submit" value="New Dataset" class="btn btn-primary right"/>
+            </form>
+        </div>
+    </div>
+    <!-- list datasets -->
+    <div class="dataset-card">
+        {% for dataset in datasets %}
+        <div class="form-inline" style="border: 2px solid black; padding-left: 30px;">
+            <div class="bar-left">
+                <b style="font-size: 25px"> {{ dataset.name }} </b>
+                <p>{{ dataset.no_images }} images</p>
+            </div>
+            <div class="bar-right">
+                <!-- <form action="{% url 'download_dataset' dataset.pk %}" class="btn btn-sm right">
+                    <input type="submit" value="Download"/>
+                </form> -->
+                <form method="post" action="{% url 'delete_dataset' dataset.pk %}" class="btn btn-sm right">
+                    {% csrf_token %}
+                    <input type="submit" value="Delete"/>
+                </form>
+                <form action="{% url 'dataset' dataset.pk %}" class="btn btn-sm right" method="POST">
+                    {% csrf_token %}
+                    <input type="submit" value="View"/>
+                </form>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</body>
+{% endblock content %}
