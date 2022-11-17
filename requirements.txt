@@ -1,0 +1,4 @@
+Django==4.1
+PILLOW==9.2.0
+django-crispy-forms==1.14.0
+azure-storage-blob==12.13.1
