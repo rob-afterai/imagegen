@@ -26,8 +26,8 @@ SECRET_KEY = 'django-insecure-lf1_a__=w8u()b%eeb1sv1xk9zkc9f8g5p_(x$cuhnazi)k-xm
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ["localhost", "imgen.azurewebsites.net", "after-ai.com"]
-CSRF_TRUSTED_ORIGINS = ["https://imgen.azurewebsites.net/", "https://imgen.azurewebsites.net"]
+ALLOWED_HOSTS = ["localhost", "imagegen.azurewebsites.net", "after-ai.com"]
+CSRF_TRUSTED_ORIGINS = ["https://imagegen.azurewebsites.net"]
 
 # Application definition
 
