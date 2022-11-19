@@ -12,7 +12,8 @@ import sys
 import shutil
 import json
 # from PIL import Image
-from azure.storage.blob import BlobServiceClient, ContainerClient
+from datetime import datetime, timedelta
+from azure.storage.blob import BlobServiceClient, ContainerClient, generate_blob_sas, BlobSasPermissions
 
 
 connect_str = "DefaultEndpointsProtocol=https;AccountName=afteraisub1storage;AccountKey=pmabm0K12K0TGF2DiHvLd8Z0hg+/EA3UEs/eAd2KXE1Txj9s/VDxNowVQdixuv1RK83qeY97UlXH+AStJtJ6Iw==;EndpointSuffix=core.windows.net"
@@ -113,17 +114,23 @@ def dataset(request, pk):
     context["form"] = form
 
     # get generated images
-    dir_files = []
-    image_paths = []
-    count = 0
-    names = []
-    # for file in dir_files:
-    #     if file[-5:] == ".JPEG":
-    #         image_paths.append([f"{rel_dir}/{file}", file])
-    #         names.append(file)
-    #         count += 1
-    context['image_paths'] = image_paths
-    context['image_names'] = names
+    _account_key = "pmabm0K12K0TGF2DiHvLd8Z0hg+/EA3UEs/eAd2KXE1Txj9s/VDxNowVQdixuv1RK83qeY97UlXH+AStJtJ6Iw=="
+    username = request.user.username
+    container = ContainerClient.from_connection_string(connect_str, username)
+    account_name = 'afteraisub1storage'
+    context['image_paths'] = []
+    for blob in container.list_blobs():
+        sas_url = generate_blob_sas(account_name,
+                                    container_name=username,
+                                    blob_name = blob.name,
+                                    account_key = _account_key,
+                                    permission=BlobSasPermissions(read=True),
+                                    expiry= datetime.utcnow() + timedelta(hours=1))
+        # url = 'https://' + account_name + '.blob.core.windows.net/' + request.user.username + '/' + blob.name + '?' + sas_url
+        url = 'https://' + account_name + '.blob.core.windows.net/' + username + '/' + blob.name + '?' + sas_url
+        print(url)
+        context['image_paths'].append([url, 'scene_000001.JPEG'])
+    # context['image_names'] = names
     return render(request, 'users/dataset.html', context)
 
 
