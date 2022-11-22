@@ -38,7 +38,8 @@ def register(request):
 @login_required
 def profile(request):
     user = request.user
-    datasets = user.dataset_set.all()
+    # datasets = user.dataset_set.all()
+    datasets = user.dataset_set.filter(job_generated=True)
     context = {
         'datasets': datasets
     }
@@ -80,22 +81,22 @@ def edit_dataset(request, pk):
                 dataset.save()
             else:
                 print("no object found")
-        # # form
-        # else:
-        #     # save form to dataset
-        #     form = DatasetForm(request.POST)
-        #     if form.is_valid():
-        #         dataset.no_images = form.cleaned_data.get('no_images')
-        #         dataset.image_height = form.cleaned_data.get('image_height')
-        #         dataset.image_width = form.cleaned_data.get('image_width')
-        #         dataset.image_extension = form.cleaned_data.get('image_extension')
-        #         dataset.color_mode = form.cleaned_data.get('color_mode')
-        #         dataset.segmented_labelling = form.cleaned_data.get('segmented_labelling')
-        #         dataset.json_label = form.cleaned_data.get('json_label')
-        #         print('dataset saved')
-        #     else:
-        #         print('form invalid')
-        #     pass
+        # form
+        else:
+            # save form to dataset
+            form = DatasetForm(request.POST)
+            if form.is_valid():
+                dataset.no_images = form.cleaned_data.get('no_images')
+                dataset.image_height = form.cleaned_data.get('image_height')
+                dataset.image_width = form.cleaned_data.get('image_width')
+                dataset.image_extension = form.cleaned_data.get('image_extension')
+                dataset.color_mode = form.cleaned_data.get('color_mode')
+                dataset.segmented_labelling = form.cleaned_data.get('segmented_labelling')
+                dataset.json_label = form.cleaned_data.get('json_label')
+                print('dataset saved')
+            else:
+                print('form invalid')
+            pass
 
     print('dataset created')
     context['lib_objs'] = []
@@ -171,9 +172,12 @@ def test(request):
 
 
 def generate_images(request, pk):
+    dataset = Dataset.objects.get(pk=pk)
+    dataset.job_generated = True
+    dataset.save()
+
     # 1. get database and container
     jobs_container = ContainerClient.from_connection_string(connect_str, "jobs")
-    dataset = Dataset.objects.get(pk=pk)
     blob_name = request.user.username + "/" + dataset.name + ".json"
 
     form = DatasetForm(request.POST)
@@ -214,7 +218,6 @@ def generate_images(request, pk):
     blob_client.upload_blob(json_str)
 
     print("Sending instructions to server for " + dataset.name)
-    dataset.job_generated = True
     # return success message
     return redirect('view_dataset', pk)
 

@@ -173,7 +173,7 @@
                 <form method="post" action="{% url 'edit_dataset' dataset.pk %}">
                     {% csrf_token %}
                     {{form.as_ul}}
-                    <!-- <button type="submit", method='POST'>Save</button> -->
+                    <button type="submit", method='POST'>Save</button>
                 </form>
             </div>
         </div>
@@ -222,6 +222,7 @@
                 <div class="top-bar-right">
                     <!-- <input type="submit" value="Pay"/> -->
                     <form action="{% url 'generate-images' dataset.pk %}" class="right-align-button">
+                        {% csrf_token %}
                         <input type="submit" value="Generate"/>
                     </form>
                 </div>
