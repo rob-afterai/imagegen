@@ -80,21 +80,22 @@ def edit_dataset(request, pk):
                 dataset.save()
             else:
                 print("no object found")
-        # form
-        else:
-            # form = DatasetForm(request.POST)
-            # if form.is_valid():
-            #     dataset.no_images = form.cleaned_data.get('no_images')
-            #     dataset.image_height = form.cleaned_data.get('image_height')
-            #     dataset.image_width = form.cleaned_data.get('image_width')
-            #     dataset.image_extension = form.cleaned_data.get('image_extension')
-            #     dataset.color_mode = form.cleaned_data.get('color_mode')
-            #     dataset.segmented_labelling = form.cleaned_data.get('segmented_labelling')
-            #     dataset.json_label = form.cleaned_data.get('json_label')
-            #     print('dataset saved')
-            # else:
-            #     print('form invalid')
-            pass
+        # # form
+        # else:
+        #     # save form to dataset
+        #     form = DatasetForm(request.POST)
+        #     if form.is_valid():
+        #         dataset.no_images = form.cleaned_data.get('no_images')
+        #         dataset.image_height = form.cleaned_data.get('image_height')
+        #         dataset.image_width = form.cleaned_data.get('image_width')
+        #         dataset.image_extension = form.cleaned_data.get('image_extension')
+        #         dataset.color_mode = form.cleaned_data.get('color_mode')
+        #         dataset.segmented_labelling = form.cleaned_data.get('segmented_labelling')
+        #         dataset.json_label = form.cleaned_data.get('json_label')
+        #         print('dataset saved')
+        #     else:
+        #         print('form invalid')
+        #     pass
 
     print('dataset created')
     context['lib_objs'] = []
@@ -175,17 +176,32 @@ def generate_images(request, pk):
     dataset = Dataset.objects.get(pk=pk)
     blob_name = request.user.username + "/" + dataset.name + ".json"
 
-    # 2. write params to dict
+    form = DatasetForm(request.POST)
     settings_dict = dict()
-    settings_dict['username'] = request.user.username
-    settings_dict['dataset_name'] = dataset.name
-    settings_dict["no_images"] = dataset.no_images
-    settings_dict["image_height"] = dataset.image_height
-    settings_dict["image_width"] = dataset.image_width
-    settings_dict["image_extension"] = dataset.image_extension
-    settings_dict["color_mode"] = dataset.color_mode
-    settings_dict['segmented_labelling'] = dataset.segmented_labelling
-    settings_dict['json_label'] = dataset.json_label
+    if form.is_valid():
+        settings_dict['username'] = request.user.username
+        settings_dict['dataset_name'] = dataset.name
+        settings_dict['no_images'] = form.cleaned_data.get('no_images')
+        settings_dict['image_height'] = form.cleaned_data.get('image_height')
+        settings_dict['image_width'] = form.cleaned_data.get('image_width')
+        settings_dict['image_extension'] = form.cleaned_data.get('image_extension')
+        settings_dict['color_mode'] = form.cleaned_data.get('color_mode')
+        settings_dict['segmented_labelling'] = form.cleaned_data.get('segmented_labelling')
+        settings_dict['json_label'] = form.cleaned_data.get('json_label')
+        print('dataset saved')
+
+    # 2. write params to dict
+    # form = DatasetForm(request.POST)
+    # settings_dict = dict()
+    # settings_dict['username'] = request.user.username
+    # settings_dict['dataset_name'] = dataset.name
+    # settings_dict["no_images"] = dataset.no_images
+    # settings_dict["image_height"] = dataset.image_height
+    # settings_dict["image_width"] = dataset.image_width
+    # settings_dict["image_extension"] = dataset.image_extension
+    # settings_dict["color_mode"] = dataset.color_mode
+    # settings_dict['segmented_labelling'] = dataset.segmented_labelling
+    # settings_dict['json_label'] = dataset.json_label
 
     objs_json = json.loads(dataset.objs_list_json_str)
     settings_dict['objects'] = []
