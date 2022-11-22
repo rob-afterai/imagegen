@@ -1,6 +1,7 @@
 {% extends "imgen/base.html" %}
 {% load static %}
 {% block content %}
+{% load crispy_forms_tags %}
 
 <head>
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
@@ -44,23 +45,6 @@
             transform: translate(-50%,0%);
         }
 
-        .top-bar-left{
-            float: right;
-            width: 50%;
-            /* border: 3px solid greenyellow; */
-        }
-
-        .top-bar-right{
-            float: right;
-            width: 50%;
-            /* border: 3px solid blue; */
-        }
-
-        .right-align-button{
-            float: right;
-            padding: 10px;
-        }
-
     </style>
 
     <style>
@@ -76,12 +60,12 @@
         /* card area */
         #image-card-holder{
             position: relative;
-            border: 0px solid rgb(157, 157, 157);
-            width: 100%;
+            border: 3px solid black;
+            width: 100%;;
             block-size: fit-content;
             margin: 5px;
             padding: 5px;
-            background-color: rgb(233, 233, 233);
+            background-color: lightgray;
         }
         
         .image-card{
@@ -107,99 +91,148 @@
             margin: 5%;
         }
 
+        .top-bar-left{
+            float: right;
+            width: 50%;
+            /* border: 3px solid greenyellow; */
+        }
+
+        .top-bar-right{
+            float: right;
+            width: 50%;
+            /* border: 3px solid blue; */
+        }
+
+        .right-align-button{
+            float: right;
+            padding: 10px;
+        }
+
     </style>
 </head>
 
 <body>
-<div class="container" style="padding: 100px 0;">
-
+<div class="container" style="padding-top: 100px;">
+    <h1>Create {{dataset.name}}</h1>
+    <p style="margin-top: 22px;"></p>
     <!-- Nav tabs -->
     <ul class="nav nav-tabs">
         <li class="nav-item">
-            <a class="nav-link active" data-toggle="tab" href="#info_tab">Info</a>
+            <a class="nav-link active" data-toggle="tab" href="#objects_tab">Objects</a>
         </li>
         <li class="nav-item">
-            <a class="nav-link" data-toggle="tab" href="#objects_tab">Objects</a>
+            <a class="nav-link" data-toggle="tab" href="#settings_edit_tab">Settings</a>
         </li>
+        <!-- <li class="nav-item">
+            <a class="nav-link" data-toggle="tab" href="#settings_view_tab">Settings</a>
+        </li> -->
         <li class="nav-item">
-            <a class="nav-link" data-toggle="tab" href="#settings_tab">Settings</a>
+            <a class="nav-link" data-toggle="tab" href="#payment_tab">Generate Images</a>
         </li>
-        <li class="nav-item">
+        <!-- <li class="nav-item">
             <a class="nav-link" data-toggle="tab" href="#images_tab">View Results</a>
-        </li>
+        </li> -->
     </ul>
 
     <!-- Tab panes -->
     <div class="tab-content">
-        <div class="tab-pane container active" id="info_tab">
-            <div style="padding: 15px;"></div>
-            <p>Demo</p>
-            <p> 1. Choose objects from your library and open source examples</p>
-            <p> 2. Set the number of images and image properties</p>
-            <p> 3. Generate your images</p>
-            <p> 4. View your results and download</p>
-            <p>To begin register an account and create a dataset</p>
-        </div>
         
         <!-- objects_tab -->
-        <div class="tab-pane container fade" id="objects_tab">
-            <div class="form-inline">
-                <div class="top-bar-left">
-                    <p style="margin-top: 22px;">selected objects</p>
-                </div>
-            </div>
+        <div class="tab-pane container active" id="objects_tab" method="POST">
+            <!-- search -->
+            <p style="margin-top: 22px;"></p>
+            <form method="POST">
+                {% csrf_token %}
+                <input type="search" name="searched">
+                <button type="submit">Add</button>
+            </form>
+            <p style="margin-top: 22px;"></p>
+            <!-- list objs in cards -->
             <div id="image-card-holder">
-                {% for lib_obj in lib_objs %}
+                {% for obj in lib_objs %}
                     <div class="image-card";>
-                        <img src ="{% static 'imgen/objs/' %}{{lib_obj.name}}.jpg" class="image-card-image">
-                        <p class="image-card-text">{{ lib_obj.name }}</p>
+                        <!-- <img src={{ image_path }} class="image-card-image"> -->
+                        <a href="{% url 'remove_obj' dataset.pk obj.pk %}">
+                            <!-- <input type="submit" value="obj"/> -->
+                            <img class="obj-card-toolbar" src="/static/datagen/remove_30x30.png">
+                        </a>
+                        <p class="image-card-text">{{obj.name}}</p>
                     </div>
                 {% endfor %}
+                <!-- <div class="image-card";>
+                    <img src="/static/datagen/add.png" class="image-card-image">
+                    <p class="image-card-text">Add obj from library</p>
+                </div> -->
             </div>
         </div>
 
-        <!-- settings_tab -->
-        <div class="tab-pane container fade" id="settings_tab">
+        <!-- settings_edit_tab -->
+        <div class="tab-pane container fade" id="settings_edit_tab">
+            <div style="padding: 15px;"></div>
+            <div id="settings-body">
+                <form method="post" action="{% url 'edit_dataset' dataset.pk %}">
+                    {% csrf_token %}
+                    {{form.as_ul}}
+                    <!-- <button type="submit", method='POST'>Save</button> -->
+                </form>
+            </div>
+        </div>
+
+        <!-- settings view tab -->
+        <!-- <div class="tab-pane container fade" id="settings_view_tab">
             <div style="padding: 15px;"></div>
             <div id="settings-body">
                 <table id="settings">
                     <tr>
                         <td>Number of images</td>
-                        <td>50</td>
-                    </tr>
-                    <tr>
-                        <td>Image width</td>
-                        <td>100</td>
+                        <td>{{dataset.no_images}}</td>
                     </tr>
                     <tr>
                         <td>Image height</td>
-                        <td>100</td>
+                        <td>{{dataset.image_height}}</td>
+                    </tr>
+                    <tr>
+                        <td>Image width</td>
+                        <td>{{dataset.image_width}}</td>
                     </tr>
                     <tr>
                         <td>Image extension</td>
-                        <td>JPEG</td>
+                        <td>{{dataset.image_extension}}</td>
                     </tr>
                     <tr>
                         <td>Color mode</td>
-                        <td>RGB</td>
+                        <td>{{dataset.color_mode}}</td>
                     </tr>
                     <tr>
                         <td>Segmented label</td>
-                        <td>True</td>
+                        <td>{{dataset.segmented_labelling}}</td>
                     </tr>
                     <tr>
                         <td>JSON label</td>
-                        <td>False</td>
+                        <td>{{dataset.json_label}}</td>
                     </tr>
                 </table>
+            </div>
+        </div> -->
+
+        <!-- payment_tab -->
+        <div class="tab-pane container fade" id="payment_tab">
+            <div style="padding: 15px;"></div>
+            <div class="form-inline">
+                <div class="top-bar-right">
+                    <!-- <input type="submit" value="Pay"/> -->
+                    <form action="{% url 'generate-images' dataset.pk %}" class="right-align-button">
+                        <input type="submit" value="Generate"/>
+                    </form>
+                </div>
             </div>
         </div>
 
         <!-- images_tab -->
-        <div class="tab-pane container fade" id="images_tab">
+        <!-- <div class="tab-pane container fade" id="images_tab">
             <div class="form-inline">
                 <div class="top-bar-left">
-                    <p style="margin-top: 12px;">showing 50 scenes</p>
+                    <p style="margin-top: 12px;">showing {{ num_images }} images</p>
                 </div>
                 <div class="top-bar-right">
                     <form action="download" class="right-align-button">
@@ -210,11 +243,12 @@
             <div id="image-card-holder">
                 {% for image_path, image_label_path in image_paths %}
                     <div class="image-card";>
+                        background-image: url('/static/imgen/background_scene.jpg');
                         <img src={{ image_path }} class="image-card-image">
                         <p class="image-card-text">{{ image_label_path }}</p>
                     </div>
                 {% endfor %}
-            </div>
+            </div> -->
         </div>
     </div>
 </div>

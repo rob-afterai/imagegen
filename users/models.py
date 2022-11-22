@@ -5,7 +5,6 @@ from django.utils import timezone
 
 class Profile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
-    dir = ""  # models.CharField(max_length=100, default=".")
     dataset_count = models.IntegerField(default=0)
 
     def __str__(self):
@@ -27,12 +26,12 @@ class Obj(models.Model):
     view_profile = models.ImageField(upload_to='objs')
     blob_str = models.CharField(max_length=100, default='')
     tags = models.TextField(default='[]')    # list of tags
-    view_ym = models.CharField(max_length=240, default='')
-    view_yp = models.CharField(max_length=240, default='')
-    view_xp = models.CharField(max_length=240, default='')
-    view_xm = models.CharField(max_length=240, default='')
-    view_zp = models.CharField(max_length=240, default='')
-    view_zm = models.CharField(max_length=240, default='')
+    # view_ym = models.CharField(max_length=240, default='')
+    # view_yp = models.CharField(max_length=240, default='')
+    # view_xp = models.CharField(max_length=240, default='')
+    # view_xm = models.CharField(max_length=240, default='')
+    # view_zp = models.CharField(max_length=240, default='')
+    # view_zm = models.CharField(max_length=240, default='')
 
 
 
@@ -40,11 +39,13 @@ class Dataset(models.Model):
     # private info
     name = models.CharField(max_length=200, default='dataset')
     user = models.ForeignKey(User, on_delete=models.CASCADE)
+    # count = models.IntegerField(default=0)
     last_modified = models.DateTimeField(auto_now=True)
     date_created = models.DateTimeField(default=timezone.now)
+    job_generated = models.BooleanField(default=False)
+
     # image generation settings
     objects_per_image = models.IntegerField(default=5)
-    job_generated = models.BooleanField(default=False)
     objs_list_json_str = models.TextField(default='[]')
     no_images = models.IntegerField(default=10)
     image_height = models.IntegerField(default=100)

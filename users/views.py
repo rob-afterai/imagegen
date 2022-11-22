@@ -5,13 +5,10 @@ from .forms import UserRegisterForm, DatasetForm
 from django.http import StreamingHttpResponse
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
-from pathlib import Path
 import os
 from .models import Dataset, Obj
-import sys
 import shutil
 import json
-# from PIL import Image
 from datetime import datetime, timedelta
 from azure.storage.blob import BlobServiceClient, ContainerClient, generate_blob_sas, BlobSasPermissions
 
@@ -48,30 +45,24 @@ def profile(request):
     return render(request, 'users/profile.html' , context)
 
 
-def dataset_create(request):
-    print('dataset_create')
+def create_dataset(request):
+    dataset = Dataset(user=request.user)
+    n = request.user.profile.dataset_count
+    dataset.name = "dataset" + str(n)
+    request.user.profile.dataset_count += 1
+    request.user.profile.save()
+    dataset.save()
+    return redirect('edit_dataset', dataset.pk)
+
+
+def edit_dataset(request, pk):
+    dataset = Dataset.objects.get(pk=pk)
     if not request.user.is_authenticated:
         print('user not authenticated')
         return redirect('home')
-    
-    # update profile
-    # print('profile ' + str(request.user.profile))
-    # request.user.profile.dataset_count += 1
-    # request.user.profile.save()
-
-    # create dataset
-    dataset = Dataset(user=request.user)
-    dataset.name = "dataset" + str(len(request.user.dataset_set.all()))
-    dataset.save()
-    print('dataset created')
-    return redirect('dataset' , dataset.pk)
-
-
-def dataset(request, pk):
-    # settings
-    dataset = Dataset.objects.get(pk=pk)
     form = DatasetForm()
-
+    context = dict()
+    
     if request.method == "POST":
         # search for objs
         print('post')
@@ -85,27 +76,43 @@ def dataset(request, pk):
                 objs_json = json.loads(dataset.objs_list_json_str)
                 objs_json.append(obj.name)
                 dataset.objs_list_json_str = json.dumps(objs_json)
+                print(dataset.objs_list_json_str)
                 dataset.save()
             else:
                 print("no object found")
         # form
         else:
-            form = DatasetForm(request.POST)
-            if form.is_valid():
-                dataset.no_images = form.cleaned_data.get('no_images')
-                dataset.image_height = form.cleaned_data.get('image_height')
-                dataset.image_width = form.cleaned_data.get('image_width')
-                dataset.image_extension = form.cleaned_data.get('image_extension')
-                dataset.color_mode = form.cleaned_data.get('color_mode')
-                dataset.segmented_labelling = form.cleaned_data.get('segmented_labelling')
-                dataset.json_label = form.cleaned_data.get('json_label')
-                dataset.save()
-                print('dataset saved')
-            else:
-                print('form invalid')
-        return redirect('dataset', pk)
+            # form = DatasetForm(request.POST)
+            # if form.is_valid():
+            #     dataset.no_images = form.cleaned_data.get('no_images')
+            #     dataset.image_height = form.cleaned_data.get('image_height')
+            #     dataset.image_width = form.cleaned_data.get('image_width')
+            #     dataset.image_extension = form.cleaned_data.get('image_extension')
+            #     dataset.color_mode = form.cleaned_data.get('color_mode')
+            #     dataset.segmented_labelling = form.cleaned_data.get('segmented_labelling')
+            #     dataset.json_label = form.cleaned_data.get('json_label')
+            #     print('dataset saved')
+            # else:
+            #     print('form invalid')
+            pass
 
+    print('dataset created')
+    context['lib_objs'] = []
+    for ob_name in json.loads(dataset.objs_list_json_str):
+        o = Obj.objects.get(name=ob_name)
+        context['lib_objs'].append(o)
+    context['dataset'] = dataset
+    context["form"] = form
+    dataset.save()
+    return render(request, 'users/create_dataset.html', context)
+
+
+def view_dataset(request, pk):
+    dataset = Dataset.objects.get(pk=pk)
+    form = DatasetForm()
     context = dict()
+
+    # get selected objects from library
     context['lib_objs'] = []
     for ob_name in json.loads(dataset.objs_list_json_str):
         o = Obj.objects.get(name=ob_name)
@@ -120,18 +127,18 @@ def dataset(request, pk):
     account_name = 'afteraisub1storage'
     context['image_paths'] = []
     for blob in container.list_blobs():
+        if not blob.name.startswith(dataset.name):
+            continue
         sas_url = generate_blob_sas(account_name,
                                     container_name=username,
                                     blob_name = blob.name,
                                     account_key = _account_key,
                                     permission=BlobSasPermissions(read=True),
                                     expiry= datetime.utcnow() + timedelta(hours=1))
-        # url = 'https://' + account_name + '.blob.core.windows.net/' + request.user.username + '/' + blob.name + '?' + sas_url
         url = 'https://' + account_name + '.blob.core.windows.net/' + username + '/' + blob.name + '?' + sas_url
         print(url)
         context['image_paths'].append([url, 'scene_000001.JPEG'])
-    # context['image_names'] = names
-    return render(request, 'users/dataset.html', context)
+    return render(request, 'users/view_dataset.html', context)
 
 
 def remove_obj(request, pk, obj_pk):
@@ -191,8 +198,9 @@ def generate_images(request, pk):
     blob_client.upload_blob(json_str)
 
     print("Sending instructions to server for " + dataset.name)
+    dataset.job_generated = True
     # return success message
-    return redirect('dataset', pk)
+    return redirect('view_dataset', pk)
 
 
 def download_dataset(request, pk):

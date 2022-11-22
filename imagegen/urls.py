@@ -39,8 +39,9 @@ urlpatterns = [
     path('profile/<int:pk>/', user_views.delete_dataset, name='delete_dataset'),
     path('profile/download/<int:pk>/', user_views.download_dataset, name='download_dataset'),
 
-    path('dataset/<int:pk>/', user_views.dataset, name='dataset'),
-    path('dataset/create/', user_views.dataset_create, name='dataset-create'),
+    path('dataset/<int:pk>/', user_views.view_dataset, name='view_dataset'),
+    path('dataset/create/', user_views.create_dataset, name='create_dataset'),
+    path('dataset/<int:pk>/edit/', user_views.edit_dataset, name='edit_dataset'),
     path('dataset/generate-images/<int:pk>', user_views.generate_images, name='generate-images'),
     path('dataset/remove_obj/<int:pk>/<int:obj_pk>', user_views.remove_obj, name='remove_obj'),
 

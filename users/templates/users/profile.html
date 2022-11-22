@@ -110,7 +110,7 @@
                     {% csrf_token %}
                     <input type="submit" value="Delete"/>
                 </form>
-                <form action="{% url 'dataset' dataset.pk %}" class="btn btn-sm right" method="POST">
+                <form action="{% url 'view_dataset' dataset.pk %}" class="btn btn-sm right" method="POST">
                     {% csrf_token %}
                     <input type="submit" value="View"/>
                 </form>
