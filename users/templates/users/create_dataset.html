@@ -149,14 +149,13 @@
             <p style="margin-top: 22px;"></p>
             <!-- list objs in cards -->
             <div id="image-card-holder">
-                {% for obj in lib_objs %}
+                {% for name, url in lib_objs %}
                     <div class="image-card";>
-                        <!-- <img src={{ image_path }} class="image-card-image"> -->
-                        <a href="{% url 'remove_obj' dataset.pk obj.pk %}">
-                            <!-- <input type="submit" value="obj"/> -->
+                        <img src ={{ url }} class="image-card-image">
+                        <!-- <a>
                             <img class="obj-card-toolbar" src="/static/datagen/remove_30x30.png">
-                        </a>
-                        <p class="image-card-text">{{obj.name}}</p>
+                        </a> -->
+                        <p class="image-card-text">{{ name }}</p>
                     </div>
                 {% endfor %}
                 <!-- <div class="image-card";>

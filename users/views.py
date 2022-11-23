@@ -93,6 +93,7 @@ def edit_dataset(request, pk):
                 dataset.color_mode = form.cleaned_data.get('color_mode')
                 dataset.segmented_labelling = form.cleaned_data.get('segmented_labelling')
                 dataset.json_label = form.cleaned_data.get('json_label')
+                dataset.save()
                 print('dataset saved')
             else:
                 print('form invalid')
@@ -102,7 +103,8 @@ def edit_dataset(request, pk):
     context['lib_objs'] = []
     for ob_name in json.loads(dataset.objs_list_json_str):
         o = Obj.objects.get(name=ob_name)
-        context['lib_objs'].append(o)
+        url = ""
+        context['lib_objs'].append([o.name, url])
     context['dataset'] = dataset
     context["form"] = form
     dataset.save()
@@ -154,7 +156,7 @@ def remove_obj(request, pk, obj_pk):
             new_list.append(o)
     dataset.objs_list_json_str = json.dumps(new_list)
     dataset.save()
-    return redirect('dataset', pk)
+    return redirect('create_dataset', pk)
 
 
 def test(request):
@@ -180,32 +182,32 @@ def generate_images(request, pk):
     jobs_container = ContainerClient.from_connection_string(connect_str, "jobs")
     blob_name = request.user.username + "/" + dataset.name + ".json"
 
-    form = DatasetForm(request.POST)
     settings_dict = dict()
-    if form.is_valid():
-        settings_dict['username'] = request.user.username
-        settings_dict['dataset_name'] = dataset.name
-        settings_dict['no_images'] = form.cleaned_data.get('no_images')
-        settings_dict['image_height'] = form.cleaned_data.get('image_height')
-        settings_dict['image_width'] = form.cleaned_data.get('image_width')
-        settings_dict['image_extension'] = form.cleaned_data.get('image_extension')
-        settings_dict['color_mode'] = form.cleaned_data.get('color_mode')
-        settings_dict['segmented_labelling'] = form.cleaned_data.get('segmented_labelling')
-        settings_dict['json_label'] = form.cleaned_data.get('json_label')
-        print('dataset saved')
+
+    # form = DatasetForm(request.POST)
+    # if form.is_valid():
+    #     settings_dict['username'] = request.user.username
+    #     settings_dict['dataset_name'] = dataset.name
+    #     settings_dict['no_images'] = form.cleaned_data.get('no_images')
+    #     settings_dict['image_height'] = form.cleaned_data.get('image_height')
+    #     settings_dict['image_width'] = form.cleaned_data.get('image_width')
+    #     settings_dict['image_extension'] = form.cleaned_data.get('image_extension')
+    #     settings_dict['color_mode'] = form.cleaned_data.get('color_mode')
+    #     settings_dict['segmented_labelling'] = form.cleaned_data.get('segmented_labelling')
+    #     settings_dict['json_label'] = form.cleaned_data.get('json_label')
+    #     print('dataset saved')
 
     # 2. write params to dict
     # form = DatasetForm(request.POST)
-    # settings_dict = dict()
-    # settings_dict['username'] = request.user.username
-    # settings_dict['dataset_name'] = dataset.name
-    # settings_dict["no_images"] = dataset.no_images
-    # settings_dict["image_height"] = dataset.image_height
-    # settings_dict["image_width"] = dataset.image_width
-    # settings_dict["image_extension"] = dataset.image_extension
-    # settings_dict["color_mode"] = dataset.color_mode
-    # settings_dict['segmented_labelling'] = dataset.segmented_labelling
-    # settings_dict['json_label'] = dataset.json_label
+    settings_dict['username'] = request.user.username
+    settings_dict['dataset_name'] = dataset.name
+    settings_dict["no_images"] = dataset.no_images
+    settings_dict["image_height"] = dataset.image_height
+    settings_dict["image_width"] = dataset.image_width
+    settings_dict["image_extension"] = dataset.image_extension
+    settings_dict["color_mode"] = dataset.color_mode
+    settings_dict['segmented_labelling'] = dataset.segmented_labelling
+    settings_dict['json_label'] = dataset.json_label
 
     objs_json = json.loads(dataset.objs_list_json_str)
     settings_dict['objects'] = []
